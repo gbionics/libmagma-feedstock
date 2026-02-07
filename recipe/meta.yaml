@@ -95,11 +95,11 @@ source:
       - patches/0001-fix-compilation-issue-with-cuda-13.patch
 
 build:
-  number: 6
+  number: 7
   skip: true  # [cuda_compiler_version == "None"]
   # debugging skips below
   # skip: true  # [not (linux64 and cuda_compiler_version == "12.9")]
-  # skip: true  # [not win]
+  skip: true  # [not win]
 
 requirements:
   build:
@@ -109,6 +109,7 @@ requirements:
     - {{ stdlib('c') }}
     - cmake >=3.30,<4
     - libgomp  # [linux]
+    - vcomp14  # [win]
     - arm-variant * {{ arm_variant_type }}  # [linux and aarch64 and cuda_compiler_version != "None"]
     # Commented out tools needed when doing source-code generation
     # - m2-coreutils  # [win]
@@ -151,6 +152,7 @@ outputs:
         - {{ compiler('cuda') }}
         - {{ stdlib('c') }}
         - libgomp  # [linux]
+        - vcomp14  # [win]
         - arm-variant * {{ arm_variant_type }}  # [linux and aarch64 and cuda_compiler_version != "None"]
       host:
         - cuda-version {{ cuda_compiler_version }}
@@ -199,6 +201,7 @@ outputs:
         - {{ compiler('cuda') }}
         - {{ stdlib('c') }}
         - libgomp  # [linux]
+        - vcomp14  # [win]
         - arm-variant * {{ arm_variant_type }}  # [linux and aarch64 and cuda_compiler_version != "None"]
       host:
         - cuda-version {{ cuda_compiler_version }}
@@ -247,6 +250,7 @@ outputs:
         - {{ compiler('cuda') }}
         - {{ stdlib('c') }}
         - libgomp  # [linux]
+        - vcomp14  # [win]
         - arm-variant * {{ arm_variant_type }}  # [linux and aarch64 and cuda_compiler_version != "None"]
       host:
         - cuda-version {{ cuda_compiler_version }}
