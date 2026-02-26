@@ -3,21 +3,20 @@
   'auxiliary',
   'batched',
   'bulge',
+  'c',
   'cbatched',
   'cbulge',
   'cbulgeinc',
   'cgehrd_m',
-  'c',
   'clapack',
   'config',
   'copy',
-  'copy_v1',
   'cvbatched',
+  'd',
   'dbatched',
   'dbulge',
   'dbulgeinc',
   'dgehrd_m',
-  'd',
   'dlapack',
   'ds',
   'dvbatched',
@@ -27,22 +26,22 @@
   'mangling_cmake',
   'mangling',
   'operators',
+  's',
   'sbatched',
   'sbulge',
   'sbulgeinc',
   'sgehrd_m',
-  's',
   'slapack',
   'svbatched',
   'types',
   'v2',
   'vbatched',
+  'z',
   'zbatched',
   'zbulge',
   'zbulgeinc',
   'zc',
   'zgehrd_m',
-  'z',
   'zlapack',
   'zvbatched'
 ] %}
@@ -50,36 +49,20 @@
 {% set magmasparse_headers = [
   'c',
   'd',
-  'ds',
   'mmio',
   's',
   'types',
-  'zc',
   'z'
 ] %}
 
 {% set magmablas_headers = [
   'c',
-  'c_v1',
-  'c_v1_map',
   'd',
   'ds',
-  'ds_v1',
-  'ds_v1_map',
-  'd_v1',
-  'd_v1_map',
   'h',
   's',
-  's_v1',
-  's_v1_map',
-  'v1',
-  'v1_map',
-  'zc',
-  'zc_v1',
-  'zc_v1_map',
   'z',
-  'z_v1',
-  'z_v1_map'
+  'zc',
 ] %}
 
 {% set version = "2.10.0" %}
@@ -91,8 +74,6 @@ package:
 source:
   - url: https://icl.utk.edu/projectsfiles/magma/downloads/magma-{{ version }}.tar.gz
     sha256: ea0c57fcb64ac2fd7ffe8f02d8fe18f07055c5b7fba0164f565d1e3a85148fb5
-    patches:
-      - patches/0001-fix-compilation-issue-with-cuda-13.patch
 
 build:
   number: 0
@@ -206,7 +187,6 @@ outputs:
         - cuda-cudart-dev
         - libcusparse-dev
         - liblapack
-        - libblas
         - nomkl
         - {{ pin_subpackage('libmagma', exact=True) }}
       run:
