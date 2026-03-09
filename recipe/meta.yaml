@@ -3,21 +3,20 @@
   'auxiliary',
   'batched',
   'bulge',
+  'c',
   'cbatched',
   'cbulge',
   'cbulgeinc',
   'cgehrd_m',
-  'c',
   'clapack',
   'config',
   'copy',
-  'copy_v1',
   'cvbatched',
+  'd',
   'dbatched',
   'dbulge',
   'dbulgeinc',
   'dgehrd_m',
-  'd',
   'dlapack',
   'ds',
   'dvbatched',
@@ -27,22 +26,22 @@
   'mangling_cmake',
   'mangling',
   'operators',
+  's',
   'sbatched',
   'sbulge',
   'sbulgeinc',
   'sgehrd_m',
-  's',
   'slapack',
   'svbatched',
   'types',
   'v2',
   'vbatched',
+  'z',
   'zbatched',
   'zbulge',
   'zbulgeinc',
   'zc',
   'zgehrd_m',
-  'z',
   'zlapack',
   'zvbatched'
 ] %}
@@ -50,39 +49,23 @@
 {% set magmasparse_headers = [
   'c',
   'd',
-  'ds',
   'mmio',
   's',
   'types',
-  'zc',
   'z'
 ] %}
 
 {% set magmablas_headers = [
   'c',
-  'c_v1',
-  'c_v1_map',
   'd',
   'ds',
-  'ds_v1',
-  'ds_v1_map',
-  'd_v1',
-  'd_v1_map',
   'h',
   's',
-  's_v1',
-  's_v1_map',
-  'v1',
-  'v1_map',
-  'zc',
-  'zc_v1',
-  'zc_v1_map',
   'z',
-  'z_v1',
-  'z_v1_map'
+  'zc',
 ] %}
 
-{% set version = "2.9.0" %}
+{% set version = "2.10.0" %}
 
 package:
   name: libmagma-split
@@ -90,16 +73,13 @@ package:
 
 source:
   - url: https://icl.utk.edu/projectsfiles/magma/downloads/magma-{{ version }}.tar.gz
-    sha256: ff77fd3726b3dfec3bfb55790b06480aa5cc384396c2db35c56fdae4a82c641c
-    patches:
-      - patches/0001-fix-compilation-issue-with-cuda-13.patch
+    sha256: ea0c57fcb64ac2fd7ffe8f02d8fe18f07055c5b7fba0164f565d1e3a85148fb5
 
 build:
-  number: 7
+  number: 0
   skip: true  # [cuda_compiler_version == "None"]
   # debugging skips below
   # skip: true  # [not (linux64 and cuda_compiler_version == "12.9")]
-  skip: true  # [not win]
 
 requirements:
   build:
@@ -175,11 +155,10 @@ outputs:
         - if not exist %LIBRARY_PREFIX%\bin\magma.dll exit 1       # [win]
     about:
       home: https://icl.utk.edu/magma/
-      dev_url:  https://github.com/icl-utk-edu/magma/
+      dev_url: https://github.com/icl-utk-edu/magma/
       summary: The Matrix Algebra on GPU and Multicore Architectures (MAGMA) runtime libraries.
       description: >-
-        This is a runtime package only. Developers should install libmagma-devel to build with
-        MAGMA.
+        This is a runtime package only. Developers should install libmagma-devel to build with MAGMA.
       license: BSD-3-Clause
       license_file: COPYRIGHT
 
@@ -208,7 +187,6 @@ outputs:
         - cuda-cudart-dev
         - libcusparse-dev
         - liblapack
-        - libblas
         - nomkl
         - {{ pin_subpackage('libmagma', exact=True) }}
       run:
@@ -222,11 +200,10 @@ outputs:
         - if not exist %LIBRARY_PREFIX%\bin\magma_sparse.dll exit 1    # [win]
     about:
       home: https://icl.utk.edu/magma/
-      dev_url:  https://github.com/icl-utk-edu/magma/
+      dev_url: https://github.com/icl-utk-edu/magma/
       summary: The Matrix Algebra on GPU and Multicore Architectures (MAGMA) runtime libraries.
       description: >-
-        This is a runtime package only. Developers should install libmagma-devel to build with
-        MAGMA.
+        This is a runtime package only. Developers should install libmagma-devel to build with MAGMA.
       license: BSD-3-Clause
       license_file: COPYRIGHT
 
@@ -262,41 +239,35 @@ outputs:
         - {{ pin_subpackage('libmagma', exact=True) }}  # [not win]
         - {{ pin_subpackage('libmagma_sparse', exact=True) }}  # [not win]
     test:
-        commands:
-          - test -f $PREFIX/include/magma.h                            # [unix]
-          - if not exist %LIBRARY_PREFIX%\include\magma.h exit 1         # [win]
-          - test -f $PREFIX/lib/libmagma${SHLIB_EXT}                     # [unix]
-          - if not exist %LIBRARY_PREFIX%\lib\magma.lib exit 1           # [win]
-          - test -f $PREFIX/lib/libmagma_sparse${SHLIB_EXT}            # [unix]
-          - if not exist %LIBRARY_PREFIX%\lib\magma_sparse.lib exit 1    # [win]
-          - test -f $PREFIX/lib/pkgconfig/magma.pc                     # [unix]
-          - if not exist %LIBRARY_PREFIX%\lib\pkgconfig\magma.pc exit 1  # [win]
+      commands:
+        - test -f $PREFIX/include/magma.h                              # [unix]
+        - if not exist %LIBRARY_PREFIX%\include\magma.h exit 1           # [win]
+        - test -f $PREFIX/lib/libmagma${SHLIB_EXT}                       # [unix]
+        - if not exist %LIBRARY_PREFIX%\lib\magma.lib exit 1             # [win]
+        - test -f $PREFIX/lib/libmagma_sparse${SHLIB_EXT}              # [unix]
+        - if not exist %LIBRARY_PREFIX%\lib\magma_sparse.lib exit 1      # [win]
+        - test -f $PREFIX/lib/pkgconfig/magma.pc                       # [unix]
+        - if not exist %LIBRARY_PREFIX%\lib\pkgconfig\magma.pc exit 1    # [win]
       {% for each_header in magma_headers %}
-          - test -f $PREFIX/include/magma_{{ each_header }}.h                     # [unix]
-          - if not exist %LIBRARY_PREFIX%\include\magma_{{ each_header }}.h exit 1  # [win]
+        - test -f $PREFIX/include/magma_{{ each_header }}.h                       # [unix]
+        - if not exist %LIBRARY_PREFIX%\include\magma_{{ each_header }}.h exit 1    # [win]
       {% endfor %}
       {% for each_header in magmasparse_headers %}
-          - test -f $PREFIX/include/magmasparse_{{ each_header }}.h                     # [unix]
-          - if not exist %LIBRARY_PREFIX%\include\magmasparse_{{ each_header }}.h exit 1  # [win]
+        - test -f $PREFIX/include/magmasparse_{{ each_header }}.h                       # [unix]
+        - if not exist %LIBRARY_PREFIX%\include\magmasparse_{{ each_header }}.h exit 1    # [win]
       {% endfor %}
       {% for each_header in magmablas_headers %}
-          - test -f $PREFIX/include/magmablas_{{ each_header }}.h                     # [unix]
-          - if not exist %LIBRARY_PREFIX%\include\magmablas_{{ each_header }}.h exit 1  # [win]
+        - test -f $PREFIX/include/magmablas_{{ each_header }}.h                       # [unix]
+        - if not exist %LIBRARY_PREFIX%\include\magmablas_{{ each_header }}.h exit 1    # [win]
       {% endfor %}
 
 about:
   home: https://icl.utk.edu/magma/
-  dev_url:  https://github.com/icl-utk-edu/magma/
+  dev_url: https://github.com/icl-utk-edu/magma/
   summary: Matrix Algebra on GPU and Multicore Architectures (MAGMA)
   description: >-
-    Matrix Algebra on GPU and Multi-core Architectures (MAGMA) is a collection of
-    next-generation linear algebra libraries for heterogeneous computing. MAGMA supports
-    interfaces for current linear algebra packages and standards (e.g., LAPACK and BLAS) to
-    enable computational scientists to easily port any linear algebra–reliant software
-    component to heterogeneous computing systems. MAGMA enables applications to fully
-    exploit the power of current hybrid systems of many-core CPUs and
-    multi-GPUs/coprocessors to deliver the fastest possible time to accurate solutions
-    within given energy constraints.
+    Matrix Algebra on GPU and Multi-core Architectures (MAGMA) is a collection of next-generation linear algebra libraries for heterogeneous computing. MAGMA supports interfaces for current linear algebra packages and standards (e.g., LAPACK and BLAS) to enable computational scientists to easily port any linear algebra–reliant
+    software component to heterogeneous computing systems. MAGMA enables applications to fully exploit the power of current hybrid systems of many-core CPUs and multi-GPUs/coprocessors to deliver the fastest possible time to accurate solutions within given energy constraints.
   license: BSD-3-Clause
   license_file: COPYRIGHT
 
