@@ -12,11 +12,13 @@ if [[ "${hip_compiler_version}" != "None" ]]; then
 
   # MAGMA consumes HIP arch targets from its GPU_TARGET cache variable.
   # conda-forge provides semicolon-delimited gfx targets in
-  # CONDA_FORGE_DEFAULT_ROCM_GPU_TARGETS (for example: gfx90a;gfx942).
+  # CONDA_FORGE_DEFAULT_ROCM_GPU_TARGETS is semicolon-delimited (e.g. gfx90a;gfx942).
+  # MAGMA's GPU_TARGET expects space-separated names (it builds the list by space-appending
+  # in CMake), so convert semicolons to spaces.
   if [[ -n "${CONDA_FORGE_DEFAULT_ROCM_GPU_TARGETS:-}" ]]; then
-    rocm_gpu_targets="${CONDA_FORGE_DEFAULT_ROCM_GPU_TARGETS//,/;}"
-    backend_args+=("-DGPU_TARGET=${rocm_gpu_targets}")
-    echo "Using MAGMA HIP GPU_TARGET=${rocm_gpu_targets}"
+    magma_gpu_target="${CONDA_FORGE_DEFAULT_ROCM_GPU_TARGETS//;/ }"
+    backend_args+=("-DGPU_TARGET=${magma_gpu_target}")
+    echo "Using MAGMA HIP GPU_TARGET=${magma_gpu_target}"
   fi
 else
   # Conda-forge nvcc compiler flags environment variable doesn't match CMake environment variable
