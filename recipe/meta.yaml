@@ -77,7 +77,8 @@ source:
 
 build:
   number: 0
-  skip: true  # [cuda_compiler_version == "None"]
+  skip: true  # [cuda_compiler_version == "None" and hip_compiler_version == "None"]
+  skip: true  # [cuda_compiler_version != "None" and hip_compiler_version != "None"]
   # debugging skips below
   # skip: true  # [not (linux64 and cuda_compiler_version == "12.9")]
 
@@ -85,7 +86,8 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    - {{ compiler('cuda') }}
+    - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
+    - {{ compiler('hip') }}  # [hip_compiler_version != "None"]
     - {{ stdlib('c') }}
     - cmake >=3.30,<4
     - libgomp  # [linux]
@@ -98,11 +100,14 @@ requirements:
     # - make  # [unix]
     - ninja
   host:
-    - cuda-version {{ cuda_compiler_version }}
-    - cuda-cudart-dev
-    - cuda-profiler-api
-    - libcublas-dev
-    - libcusparse-dev
+    - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
+    - cuda-cudart-dev  # [cuda_compiler_version != "None"]
+    - cuda-profiler-api  # [cuda_compiler_version != "None"]
+    - libcublas-dev  # [cuda_compiler_version != "None"]
+    - libcusparse-dev  # [cuda_compiler_version != "None"]
+    - rocm-core  # [hip_compiler_version != "None"]
+    - hipblas  # [hip_compiler_version != "None"]
+    - hipsparse  # [hip_compiler_version != "None"]
     - liblapack
     - libblas
     - nomkl
@@ -129,26 +134,30 @@ outputs:
       build:
         - {{ compiler('c') }}
         - {{ compiler('cxx') }}
-        - {{ compiler('cuda') }}
+        - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
+        - {{ compiler('hip') }}  # [hip_compiler_version != "None"]
         - {{ stdlib('c') }}
         - libgomp  # [linux]
         - vcomp14  # [win]
         - arm-variant * {{ arm_variant_type }}  # [linux and aarch64 and cuda_compiler_version != "None"]
       host:
-        - cuda-version {{ cuda_compiler_version }}
-        - cuda-cudart-dev
-        - libcublas-dev
-        - libcusparse-dev
+        - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
+        - cuda-cudart-dev  # [cuda_compiler_version != "None"]
+        - libcublas-dev  # [cuda_compiler_version != "None"]
+        - libcusparse-dev  # [cuda_compiler_version != "None"]
         - liblapack
         - libblas
         - nomkl
+        - rocm-core  # [hip_compiler_version != "None"]
+        - hipblas  # [hip_compiler_version != "None"]
+        - hipsparse  # [hip_compiler_version != "None"]
       run:
-        - {{ pin_compatible('cuda-version', max_pin='x', min_pin='x') }}
+        - {{ pin_compatible('cuda-version', max_pin='x', min_pin='x') }}  # [cuda_compiler_version != "None"]
         # Starting with CUDA 13.0 for Windows-only, cudart links are redirected to the
         # CUDA driver at compile time. Therefore, cuda-cudart is not needed.
-        - cuda-cudart  # [(not win) or (cuda_compiler_version or "").startswith("12")]
-        - libcublas
-        - libcusparse
+        - cuda-cudart  # [((not win) or (cuda_compiler_version or "").startswith("12")) and (cuda_compiler_version != "None")]
+        - libcublas  # [cuda_compiler_version != "None"]
+        - libcusparse  # [cuda_compiler_version != "None"]
     test:
       commands:
         - test -f $PREFIX/lib/libmagma${SHLIB_EXT}                 # [unix]
@@ -177,23 +186,27 @@ outputs:
       build:
         - {{ compiler('c') }}
         - {{ compiler('cxx') }}
-        - {{ compiler('cuda') }}
+        - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
+        - {{ compiler('hip') }}  # [hip_compiler_version != "None"]
         - {{ stdlib('c') }}
         - libgomp  # [linux]
         - vcomp14  # [win]
         - arm-variant * {{ arm_variant_type }}  # [linux and aarch64 and cuda_compiler_version != "None"]
       host:
-        - cuda-version {{ cuda_compiler_version }}
-        - cuda-cudart-dev
-        - libcusparse-dev
+        - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
+        - cuda-cudart-dev  # [cuda_compiler_version != "None"]
+        - libcusparse-dev  # [cuda_compiler_version != "None"]
         - liblapack
         - nomkl
+        - rocm-core  # [hip_compiler_version != "None"]
+        - hipblas  # [hip_compiler_version != "None"]
+        - hipsparse  # [hip_compiler_version != "None"]
         - {{ pin_subpackage('libmagma', exact=True) }}
       run:
-        - {{ pin_compatible('cuda-version', max_pin='x', min_pin='x') }}
+        - {{ pin_compatible('cuda-version', max_pin='x', min_pin='x') }}  # [cuda_compiler_version != "None"]
         - {{ pin_subpackage('libmagma', exact=True) }}
-        - cuda-cudart  # [(not win) or (cuda_compiler_version or "").startswith("12")]
-        - libcusparse
+        - cuda-cudart  # [((not win) or (cuda_compiler_version or "").startswith("12")) and (cuda_compiler_version != "None")]
+        - libcusparse  # [cuda_compiler_version != "None"]
     test:
       commands:
         - test -f $PREFIX/lib/libmagma_sparse${SHLIB_EXT}        # [unix]
@@ -224,20 +237,26 @@ outputs:
       build:
         - {{ compiler('c') }}
         - {{ compiler('cxx') }}
-        - {{ compiler('cuda') }}
+        - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
+        - {{ compiler('hip') }}  # [hip_compiler_version != "None"]
         - {{ stdlib('c') }}
         - libgomp  # [linux]
         - vcomp14  # [win]
         - arm-variant * {{ arm_variant_type }}  # [linux and aarch64 and cuda_compiler_version != "None"]
       host:
-        - cuda-version {{ cuda_compiler_version }}
+        - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
+        - rocm-core  # [hip_compiler_version != "None"]
+        - hipblas  # [hip_compiler_version != "None"]
+        - hipsparse  # [hip_compiler_version != "None"]
         - nomkl
         - {{ pin_subpackage('libmagma', exact=True) }}
         - {{ pin_subpackage('libmagma_sparse', exact=True) }}
       run:
-        - {{ pin_compatible('cuda-version', max_pin='x', min_pin='x') }}
+        - {{ pin_compatible('cuda-version', max_pin='x', min_pin='x') }}  # [cuda_compiler_version != "None"]
         - {{ pin_subpackage('libmagma', exact=True) }}  # [not win]
         - {{ pin_subpackage('libmagma_sparse', exact=True) }}  # [not win]
+        - hipblas  # [hip_compiler_version != "None"]
+        - hipsparse  # [hip_compiler_version != "None"]
     test:
       commands:
         - test -f $PREFIX/include/magma.h                              # [unix]
