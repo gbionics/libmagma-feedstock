@@ -106,6 +106,7 @@ requirements:
     - libcublas-dev  # [cuda_compiler_version != "None"]
     - libcusparse-dev  # [cuda_compiler_version != "None"]
     - rocm-core  # [hip_compiler_version != "None"]
+    - hipblas-common  # [hip_compiler_version != "None"]
     - hipblas  # [hip_compiler_version != "None"]
     - hipsparse  # [hip_compiler_version != "None"]
     - liblapack
