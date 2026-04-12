@@ -77,6 +77,8 @@ source:
 
 build:
   number: 0
+  script_env:
+    - ROCK_THE_CONDA_ROCM_GPU_TARGETS
   skip: true  # [cuda_compiler_version == "None" and hip_compiler_version == "None"]
   skip: true  # [cuda_compiler_version != "None" and hip_compiler_version != "None"]
   # debugging skips below
