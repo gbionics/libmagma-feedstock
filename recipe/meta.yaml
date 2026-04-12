@@ -124,6 +124,8 @@ outputs:
         - lib/libmagma_sparse.so  # [linux]
         - Library\bin\magma_sparse.dll  # [win]
     build:
+      string: cuda{{ cuda_compiler_version | replace('.', '') }}_h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
+      string: rocm{{ hip_compiler_version | replace('.', '') }}_h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [hip_compiler_version != "None"]
       ignore_run_exports:
         - cuda-version
       # Ignore run exports to implement CUDA minor version compatibility
@@ -178,6 +180,8 @@ outputs:
         - lib/libmagma_sparse.so  # [linux]
         - Library\bin\magma_sparse.dll  # [win]
     build:
+      string: cuda{{ cuda_compiler_version | replace('.', '') }}_h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
+      string: rocm{{ hip_compiler_version | replace('.', '') }}_h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [hip_compiler_version != "None"]
       ignore_run_exports:
         - cuda-version
       ignore_run_exports_from:
@@ -229,6 +233,8 @@ outputs:
         - Library\include  # [win]
         - Library\lib  # [win]
     build:
+      string: cuda{{ cuda_compiler_version | replace('.', '') }}_h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [cuda_compiler_version != "None"]
+      string: rocm{{ hip_compiler_version | replace('.', '') }}_h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}  # [hip_compiler_version != "None"]
       run_exports:
         - {{ pin_subpackage('libmagma', max_pin='x.x.x') }}
         - {{ pin_subpackage('libmagma_sparse', max_pin='x.x.x') }}
