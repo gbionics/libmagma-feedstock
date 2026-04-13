@@ -11,12 +11,12 @@ if [[ "${hip_compiler_version}" != "None" ]]; then
   backend_args+=("-DMAGMA_ENABLE_HIP:BOOL=ON")
 
   # MAGMA consumes HIP arch targets from its GPU_TARGET cache variable.
-  # conda-forge provides semicolon-delimited gfx targets in
-  # CONDA_FORGE_DEFAULT_ROCM_GPU_TARGETS is semicolon-delimited (e.g. gfx90a;gfx942).
+  # rock-the-conda provides semicolon-delimited gfx targets in
+  # ROCK_THE_CONDA_ROCM_GPU_TARGETS is semicolon-delimited (e.g. gfx90a;gfx942).
   # MAGMA's GPU_TARGET expects space-separated names (it builds the list by space-appending
   # in CMake), so convert semicolons to spaces.
-  if [[ -n "${CONDA_FORGE_DEFAULT_ROCM_GPU_TARGETS:-}" ]]; then
-    magma_gpu_target="${CONDA_FORGE_DEFAULT_ROCM_GPU_TARGETS//;/ }"
+  if [[ -n "${ROCK_THE_CONDA_ROCM_GPU_TARGETS:-}" ]]; then
+    magma_gpu_target="${ROCK_THE_CONDA_ROCM_GPU_TARGETS//;/ }"
     backend_args+=("-DGPU_TARGET=${magma_gpu_target}")
     echo "Using MAGMA HIP GPU_TARGET=${magma_gpu_target}"
   fi
