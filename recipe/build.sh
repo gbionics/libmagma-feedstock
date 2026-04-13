@@ -15,10 +15,19 @@ if [[ "${hip_compiler_version}" != "None" ]]; then
   # ROCK_THE_CONDA_ROCM_GPU_TARGETS is semicolon-delimited (e.g. gfx90a;gfx942).
   # MAGMA's GPU_TARGET expects space-separated names (it builds the list by space-appending
   # in CMake), so convert semicolons to spaces.
+  #
+  # Note: ROCK_THE_CONDA_ROCM_GPU_TARGETS is injected by conda-build via script_env AFTER
+  # the hip-clang activation scripts run. Those scripts set CONDA_FORGE_DEFAULT_ROCM_GPU_TARGETS
+  # from this variable, but since it is not in the environment at activation time they fall back
+  # to a full default list. Re-export it here once we have the correct value so that any
+  # subsequent CMake calls using CONDA_FORGE_DEFAULT_ROCM_GPU_TARGETS also see the right targets.
   if [[ -n "${ROCK_THE_CONDA_ROCM_GPU_TARGETS:-}" ]]; then
     magma_gpu_target="${ROCK_THE_CONDA_ROCM_GPU_TARGETS//;/ }"
     backend_args+=("-DGPU_TARGET=${magma_gpu_target}")
     echo "Using MAGMA HIP GPU_TARGET=${magma_gpu_target}"
+    export CONDA_FORGE_DEFAULT_ROCM_GPU_TARGETS="${ROCK_THE_CONDA_ROCM_GPU_TARGETS}"
+  else
+    echo "WARNING: ROCK_THE_CONDA_ROCM_GPU_TARGETS is not set; MAGMA will use its own default GPU_TARGET"
   fi
 else
   # Conda-forge nvcc compiler flags environment variable doesn't match CMake environment variable
