@@ -1,34 +1,34 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 57bdfc033..545ea697e 100644
+index fc61af7..b2b594e 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -294,7 +294,7 @@ if (MAGMA_ENABLE_HIP)
+@@ -303,7 +303,7 @@ if (MAGMA_ENABLE_HIP)
      set(GPU_ARCH_FLAGS ${DEVCCFLAGS})
  
      #add_compile_options(${GPU_ARCH_FLAGS})
 -    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__HIP_PLATFORM_AMD__" )
 +    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__HIP_PLATFORM_AMD__ -DHIPBLAS_V2" )
-   else()
-     message( STATUS "Could not find HIP" )
-   endif()
+     option(ROCM_CORE "Location of the rocm-core package")
+     execute_process(COMMAND "${CMAKE_SOURCE_DIR}/tools/get-rocm-version.sh" "${ROCM_CORE}" OUTPUT_VARIABLE ROCM_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+     message(STATUS "ROCM_VERSION=${ROCM_VERSION}")
 diff --git a/Makefile b/Makefile
-index 14bb784de..09847ac62 100644
+index 44880ab..afaab45 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -808,7 +808,7 @@ ifeq ($(BACKEND),cuda)
+@@ -846,7 +846,7 @@ ifeq ($(BACKEND),cuda)
  d_ext := cu
  else ifeq ($(BACKEND),hip)
  d_ext := cpp
 -CXXFLAGS += -D__HIP_PLATFORM_AMD__
 +CXXFLAGS += -D__HIP_PLATFORM_AMD__ -DHIPBLAS_V2
+ CXXFLAGS += -DROCM_VERSION=$(shell ./tools/get-rocm-version.sh)
  endif
  
- 
 diff --git a/include/magma_types.h b/include/magma_types.h
-index c5820c878..657766369 100644
+index d8dcf92..f36aa22 100644
 --- a/include/magma_types.h
 +++ b/include/magma_types.h
-@@ -230,8 +230,6 @@ typedef double real_Double_t;
+@@ -227,8 +227,6 @@ typedef double real_Double_t;
  
      /* double complex */
  
@@ -37,7 +37,7 @@ index c5820c878..657766369 100644
      /* simple double complex definition that should be binary compatible with hipBLAS */
      typedef struct {
  
-@@ -278,9 +276,6 @@ typedef double real_Double_t;
+@@ -275,9 +273,6 @@ typedef double real_Double_t;
  
      /* float complex */
  
@@ -48,7 +48,7 @@ index c5820c878..657766369 100644
      typedef struct {
  
 diff --git a/interface_cuda/blas_h_v2.cpp b/interface_cuda/blas_h_v2.cpp
-index 2f61a1d6f..56683fe29 100644
+index 5617031..474e1e3 100644
 --- a/interface_cuda/blas_h_v2.cpp
 +++ b/interface_cuda/blas_h_v2.cpp
 @@ -118,10 +118,10 @@ magma_hgemm(
@@ -82,7 +82,7 @@ index 2f61a1d6f..56683fe29 100644
      }
      else {
 diff --git a/magmablas/zgemm_batched.cpp b/magmablas/zgemm_batched.cpp
-index 2b4ea3ba1..86a82971d 100644
+index b0aec1c..73140b8 100644
 --- a/magmablas/zgemm_batched.cpp
 +++ b/magmablas/zgemm_batched.cpp
 @@ -28,13 +28,13 @@
@@ -102,7 +102,7 @@ index 2b4ea3ba1..86a82971d 100644
      typedef cuFloatComplex BackendFloat_t;
    #endif
 diff --git a/magmablas/zgetf2_kernels.cu b/magmablas/zgetf2_kernels.cu
-index db8e7058f..3ff73755d 100644
+index 5ebfeef..b162025 100644
 --- a/magmablas/zgetf2_kernels.cu
 +++ b/magmablas/zgetf2_kernels.cu
 @@ -211,7 +211,7 @@ magma_izamax_native(
@@ -115,10 +115,10 @@ index db8e7058f..3ff73755d 100644
  
          hipblasSetPointerMode(queue->hipblas_handle(), ptr_mode);
 diff --git a/make.inc-examples/make.inc.hip-gcc-mkl b/make.inc-examples/make.inc.hip-gcc-mkl
-index 7a04a97bb..146cc5d82 100644
+index e566419..afdae21 100644
 --- a/make.inc-examples/make.inc.hip-gcc-mkl
 +++ b/make.inc-examples/make.inc.hip-gcc-mkl
-@@ -104,12 +104,6 @@ ifeq ($(BACKEND),cuda)
+@@ -112,12 +112,6 @@ ifeq ($(BACKEND),cuda)
      DEVCCFLAGS += -Xcompiler "$(FPIC)" -Xcompiler "$(FOPENMP)" -std=c++11
  else ifeq ($(BACKEND),hip)
      DEVCCFLAGS += $(FPIC) $(FOPENMP) -std=c++11
@@ -132,10 +132,10 @@ index 7a04a97bb..146cc5d82 100644
  
  
 diff --git a/make.inc-examples/make.inc.hip-gcc-openblas b/make.inc-examples/make.inc.hip-gcc-openblas
-index 4e3fe3809..75547fc75 100644
+index df71f09..b257efa 100644
 --- a/make.inc-examples/make.inc.hip-gcc-openblas
 +++ b/make.inc-examples/make.inc.hip-gcc-openblas
-@@ -108,12 +108,6 @@ ifeq ($(BACKEND),cuda)
+@@ -116,12 +116,6 @@ ifeq ($(BACKEND),cuda)
      DEVCCFLAGS += -Xcompiler "$(FPIC)" -Xcompiler "$(FOPENMP)" -std=c++11
  else ifeq ($(BACKEND),hip)
      DEVCCFLAGS += $(FPIC) $(FOPENMP) -std=c++11
@@ -149,7 +149,7 @@ index 4e3fe3809..75547fc75 100644
  
  
 diff --git a/sparse/blas/magma_z_blaswrapper.cpp b/sparse/blas/magma_z_blaswrapper.cpp
-index 1e3d3d887..e70618e3c 100644
+index 598968d..7b9b74c 100644
 --- a/sparse/blas/magma_z_blaswrapper.cpp
 +++ b/sparse/blas/magma_z_blaswrapper.cpp
 @@ -13,15 +13,6 @@
@@ -169,7 +169,7 @@ index 1e3d3d887..e70618e3c 100644
    #define CUSPARSE_CSRMV_ALG2 CUSPARSE_SPMV_CSR_ALG2
    #define CUSPARSE_CSRMV_ALG1 CUSPARSE_SPMV_CSR_ALG1
 diff --git a/sparse/blas/magma_zmatrixtools_gpu.cu b/sparse/blas/magma_zmatrixtools_gpu.cu
-index dcb8952d0..ba801300d 100644
+index 4f6b8ad..3379d89 100644
 --- a/sparse/blas/magma_zmatrixtools_gpu.cu
 +++ b/sparse/blas/magma_zmatrixtools_gpu.cu
 @@ -14,11 +14,6 @@
@@ -185,7 +185,7 @@ index dcb8952d0..ba801300d 100644
  
  __global__ void 
 diff --git a/sparse/blas/magma_ztrisolve.cpp b/sparse/blas/magma_ztrisolve.cpp
-index f51ee65b3..29aa54b89 100644
+index acc1345..ef4c2bb 100644
 --- a/sparse/blas/magma_ztrisolve.cpp
 +++ b/sparse/blas/magma_ztrisolve.cpp
 @@ -13,15 +13,6 @@
@@ -205,7 +205,7 @@ index f51ee65b3..29aa54b89 100644
  {
      magma_int_t info = 0;
 diff --git a/sparse/blas/zilu.cpp b/sparse/blas/zilu.cpp
-index c3f5709bb..4150de259 100644
+index 44ec1fc..9d50de1 100644
 --- a/sparse/blas/zilu.cpp
 +++ b/sparse/blas/zilu.cpp
 @@ -16,15 +16,6 @@
@@ -225,7 +225,7 @@ index c3f5709bb..4150de259 100644
     #define cusparseCreateCsrsm2Info(info)
     #define cusparseDestroyCsrsm2Info(info)
 diff --git a/sparse/blas/zmergecg.cu b/sparse/blas/zmergecg.cu
-index 7b472fa85..44d4b8720 100644
+index ff20497..f40154d 100644
 --- a/sparse/blas/zmergecg.cu
 +++ b/sparse/blas/zmergecg.cu
 @@ -13,16 +13,6 @@
@@ -246,7 +246,7 @@ index 7b472fa85..44d4b8720 100644
  
  #if CUDA_VERSION >= 12000
 diff --git a/sparse/control/magma_zmconvert.cpp b/sparse/control/magma_zmconvert.cpp
-index 15e9a3d9a..83948bb3a 100644
+index 97acef0..679b193 100644
 --- a/sparse/control/magma_zmconvert.cpp
 +++ b/sparse/control/magma_zmconvert.cpp
 @@ -13,11 +13,6 @@
@@ -262,7 +262,7 @@ index 15e9a3d9a..83948bb3a 100644
  // todo: check if we need buf later
  #if CUDA_VERSION >= 11000
 diff --git a/sparse/control/magma_zmtranspose.cpp b/sparse/control/magma_zmtranspose.cpp
-index 60b91f1d1..9de019349 100644
+index 6556a9f..9366dc3 100644
 --- a/sparse/control/magma_zmtranspose.cpp
 +++ b/sparse/control/magma_zmtranspose.cpp
 @@ -14,11 +14,6 @@
@@ -278,7 +278,7 @@ index 60b91f1d1..9de019349 100644
  #if CUDA_VERSION >= 11000
  #define cusparseZcsr2csc(handle, m, n, nnz, valA, rowA, colA, valB, colB, rowB,                \
 diff --git a/sparse/src/zcustomic.cpp b/sparse/src/zcustomic.cpp
-index 1859cd29f..5214769be 100644
+index fa817d4..ed48f49 100644
 --- a/sparse/src/zcustomic.cpp
 +++ b/sparse/src/zcustomic.cpp
 @@ -16,11 +16,6 @@
@@ -294,7 +294,7 @@ index 1859cd29f..5214769be 100644
      Purpose
      -------
 diff --git a/sparse/src/zcustomilu.cpp b/sparse/src/zcustomilu.cpp
-index c118125f3..2ceb8844a 100644
+index d5c5613..ee990c7 100644
 --- a/sparse/src/zcustomilu.cpp
 +++ b/sparse/src/zcustomilu.cpp
 @@ -16,11 +16,6 @@
@@ -310,7 +310,7 @@ index c118125f3..2ceb8844a 100644
      Purpose
      -------
 diff --git a/sparse/src/zparict.cpp b/sparse/src/zparict.cpp
-index d1e72ea76..8337fd69c 100644
+index 1b40d1c..f40e7c0 100644
 --- a/sparse/src/zparict.cpp
 +++ b/sparse/src/zparict.cpp
 @@ -21,12 +21,6 @@
@@ -327,7 +327,7 @@ index d1e72ea76..8337fd69c 100644
      Purpose
      -------
 diff --git a/sparse/src/zparilut.cpp b/sparse/src/zparilut.cpp
-index 55caecd13..747e1620d 100644
+index 71c4025..6744f97 100644
 --- a/sparse/src/zparilut.cpp
 +++ b/sparse/src/zparilut.cpp
 @@ -20,11 +20,6 @@
@@ -343,7 +343,7 @@ index 55caecd13..747e1620d 100644
      Purpose
      -------
 diff --git a/sparse/testing/testing_zspmm.cpp b/sparse/testing/testing_zspmm.cpp
-index de21c66c8..2682af900 100644
+index 3d816e9..60848c1 100644
 --- a/sparse/testing/testing_zspmm.cpp
 +++ b/sparse/testing/testing_zspmm.cpp
 @@ -70,15 +70,6 @@
@@ -363,7 +363,7 @@ index de21c66c8..2682af900 100644
     -- testing sparse matrix vector product
  */
 diff --git a/sparse/testing/testing_zspmv.cpp b/sparse/testing/testing_zspmv.cpp
-index 2eff03f63..776920a9c 100644
+index d9e7beb..c768a32 100644
 --- a/sparse/testing/testing_zspmv.cpp
 +++ b/sparse/testing/testing_zspmv.cpp
 @@ -72,15 +72,6 @@
@@ -383,7 +383,7 @@ index 2eff03f63..776920a9c 100644
     -- testing sparse matrix vector product
  */
 diff --git a/src/shpotrf_gpu.cpp b/src/shpotrf_gpu.cpp
-index 6c57f2b57..d981760d1 100644
+index 00e4ccf..d3b0014 100644
 --- a/src/shpotrf_gpu.cpp
 +++ b/src/shpotrf_gpu.cpp
 @@ -55,10 +55,10 @@ magma_sgemm_fp16(
@@ -402,7 +402,7 @@ index 6c57f2b57..d981760d1 100644
      #else
      return MAGMA_ERR_NOT_SUPPORTED;
 diff --git a/src/xhsgetrf_gpu.cpp b/src/xhsgetrf_gpu.cpp
-index 0a0a0c7ae..7b1e9d615 100644
+index b5dd4ec..d85beaa 100644
 --- a/src/xhsgetrf_gpu.cpp
 +++ b/src/xhsgetrf_gpu.cpp
 @@ -403,10 +403,10 @@ magma_xhsgetrf_gpu(
@@ -466,7 +466,7 @@ index 0a0a0c7ae..7b1e9d615 100644
                  }
                  else if( mp_algo_type == Magma_MP_HGEMM ) {
 diff --git a/src/xshgetrf_gpu.cpp b/src/xshgetrf_gpu.cpp
-index 96ec1d97f..345aefa1a 100644
+index 63d0da6..a3a6343 100644
 --- a/src/xshgetrf_gpu.cpp
 +++ b/src/xshgetrf_gpu.cpp
 @@ -270,10 +270,10 @@ magma_xshgetrf_gpu(
@@ -530,7 +530,7 @@ index 96ec1d97f..345aefa1a 100644
                  }
                  else if( mp_algo_type == Magma_MP_SGEMM ) {
 diff --git a/testing/testing_sgemm_fp16.cpp b/testing/testing_sgemm_fp16.cpp
-index 84f24b95a..0fbfc0b33 100644
+index b9fdabd..8c1e870 100644
 --- a/testing/testing_sgemm_fp16.cpp
 +++ b/testing/testing_sgemm_fp16.cpp
 @@ -59,10 +59,10 @@ magma_sgemm_fp16_v1(
@@ -564,7 +564,7 @@ index 84f24b95a..0fbfc0b33 100644
      return 0;
  }
 diff --git a/testing/testing_zgemm_batched.cpp b/testing/testing_zgemm_batched.cpp
-index 0b300d108..350d00498 100644
+index 8b6ddbd..dbddee9 100644
 --- a/testing/testing_zgemm_batched.cpp
 +++ b/testing/testing_zgemm_batched.cpp
 @@ -190,11 +190,11 @@ int main( int argc, char** argv)
@@ -602,7 +602,7 @@ index 0b300d108..350d00498 100644
              }
  
 diff --git a/testing/testing_zgemv_batched.cpp b/testing/testing_zgemv_batched.cpp
-index 9c63a405b..be1dea4cf 100644
+index f7fabc8..fc7422e 100644
 --- a/testing/testing_zgemv_batched.cpp
 +++ b/testing/testing_zgemv_batched.cpp
 @@ -182,11 +182,11 @@ int main( int argc, char** argv)
@@ -640,7 +640,7 @@ index 9c63a405b..be1dea4cf 100644
              }
              device_time = magma_sync_wtime( opts.queue ) - device_time;
 diff --git a/testing/testing_zgeqrf_batched.cpp b/testing/testing_zgeqrf_batched.cpp
-index 6cc62ab63..acdb92754 100644
+index 0364401..eea910b 100644
 --- a/testing/testing_zgeqrf_batched.cpp
 +++ b/testing/testing_zgeqrf_batched.cpp
 @@ -195,8 +195,8 @@ int main( int argc, char** argv)
@@ -655,7 +655,7 @@ index 6cc62ab63..acdb92754 100644
              #endif
  
 diff --git a/testing/testing_zgetrf_batched.cpp b/testing/testing_zgetrf_batched.cpp
-index ea9871364..d23de5d93 100644
+index 706de5b..d3a7ada 100644
 --- a/testing/testing_zgetrf_batched.cpp
 +++ b/testing/testing_zgetrf_batched.cpp
 @@ -238,7 +238,7 @@ int main( int argc, char** argv)
@@ -668,7 +668,7 @@ index ea9871364..d23de5d93 100644
                  #endif
              }
 diff --git a/testing/testing_ztrsm_batched.cpp b/testing/testing_ztrsm_batched.cpp
-index c2b6d0d88..7a9f7c449 100644
+index 6c092fd..3c850d5 100644
 --- a/testing/testing_ztrsm_batched.cpp
 +++ b/testing/testing_ztrsm_batched.cpp
 @@ -219,9 +219,9 @@ int main( int argc, char** argv)
@@ -684,67 +684,3 @@ index c2b6d0d88..7a9f7c449 100644
              #endif
  
              cublas_time = magma_sync_wtime( opts.queue ) - cublas_time;
-diff --git a/testing/testing_ztrsv_batched.cpp b/testing/testing_ztrsv_batched.cpp
-index 7cd5f9240..7e531bf03 100644
---- a/testing/testing_ztrsv_batched.cpp
-+++ b/testing/testing_ztrsv_batched.cpp
-@@ -153,8 +153,8 @@ int main( int argc, char** argv)
-                 device_time = magma_sync_wtime( opts.queue );
-                 hipblasZtrsvBatched(
-                     opts.handle, hipblas_uplo_const(opts.uplo), hipblas_trans_const(opts.transA), hipblas_diag_const(opts.diag),
--                    (int)N, (const hipblasDoubleComplex **)d_A_array, (int)ldda,
--                            (hipblasDoubleComplex **)d_b_array, (int)1, (int)batchCount );
-+                    (int)N, (const hipDoubleComplex **)d_A_array, (int)ldda,
-+                            (hipDoubleComplex **)d_b_array, (int)1, (int)batchCount );
-                 device_time = magma_sync_wtime( opts.queue ) - device_time;
-                 device_perf = gflops / device_time;
-             #endif
-diff --git a/tools/hipify-perl b/tools/hipify-perl
-index 1a7f889eb..aa6a06ec5 100755
---- a/tools/hipify-perl
-+++ b/tools/hipify-perl
-@@ -986,15 +986,8 @@ sub simpleSubstitutions {
-     $ft{'type'} += s/\bcsrilu02Info_t\b/csrilu02Info_t/g;
-     $ft{'type'} += s/\bcsrsv2Info_t\b/csrsv2Info_t/g;
-     $ft{'type'} += s/\bcuComplex\b/hipComplex/g;
--    
--    # original type subs
--    #$ft{'type'} += s/\bcuDoubleComplex\b/hipDoubleComplex/g;
--    #$ft{'type'} += s/\bcuFloatComplex\b/hipFloatComplex/g;
--    
--    # replace them with hipBLAS types
--    $ft{'type'} += s/\bcuDoubleComplex\b/hipblasDoubleComplex/g;
--    $ft{'type'} += s/\bcuFloatComplex\b/hipblasFloatComplex/g;
--    
-+    $ft{'type'} += s/\bcuDoubleComplex\b/hipDoubleComplex/g;
-+    $ft{'type'} += s/\bcuFloatComplex\b/hipFloatComplex/g;
-     $ft{'type'} += s/\bcublasDataType_t\b/hipblasDatatype_t/g;
-     $ft{'type'} += s/\bcublasDiagType_t\b/hipblasDiagType_t/g;
-     $ft{'type'} += s/\bcublasFillMode_t\b/hipblasFillMode_t/g;
-@@ -1210,9 +1203,9 @@ sub simpleSubstitutions {
-     $ft{'numeric_literal'} += s/\bCUDA_ERROR_UNKNOWN\b/hipErrorUnknown/g;
-     $ft{'numeric_literal'} += s/\bCUDA_ERROR_UNMAP_FAILED\b/hipErrorUnmapFailed/g;
-     $ft{'numeric_literal'} += s/\bCUDA_ERROR_UNSUPPORTED_LIMIT\b/hipErrorUnsupportedLimit/g;
--    $ft{'numeric_literal'} += s/\bCUDA_R_16F\b/HIPBLAS_R_16F/g;
--    $ft{'numeric_literal'} += s/\bCUDA_R_32F\b/HIPBLAS_R_32F/g;
--    $ft{'numeric_literal'} += s/\bCUDA_R_64F\b/HIPBLAS_R_64F/g;
-+    $ft{'numeric_literal'} += s/\bCUDA_R_16F\b/HIP_R_16F/g;
-+    $ft{'numeric_literal'} += s/\bCUDA_R_32F\b/HIP_R_32F/g;
-+    $ft{'numeric_literal'} += s/\bCUDA_R_64F\b/HIP_R_64F/g;
-     $ft{'numeric_literal'} += s/\bCUDA_SUCCESS\b/hipSuccess/g;
-     $ft{'numeric_literal'} += s/\bCUDNN_16BIT_INDICES\b/HIPDNN_16BIT_INDICES/g;
-     $ft{'numeric_literal'} += s/\bCUDNN_32BIT_INDICES\b/HIPDNN_32BIT_INDICES/g;
-diff --git a/tools/magmasubs.py b/tools/magmasubs.py
-index f1e0dabca..00b8aed30 100644
---- a/tools/magmasubs.py
-+++ b/tools/magmasubs.py
-@@ -501,8 +501,7 @@ def title( table ):
-     ('float',                'double',               'cuFloatComplex',       'cuDoubleComplex'     ),
-     ('float',                'double',               'hipFloatComplex',      'hipDoubleComplex'    ),
-     ('CUDA_R_32F',           'CUDA_R_64F',           'CUDA_C_32F',           'CUDA_C_64F'          ),
--    #('float',                'double',               'hipComplex',           'hipDoubleComplex'   ),
--    ('float',                'double',               'hipblasComplex',       'hipblasDoubleComplex'),
-+    ('float',                'double',               'hipComplex',           'hipDoubleComplex'    ),
-     ('float',                'double',               'MKL_Complex8',         'MKL_Complex16'       ),
-     ('magmaFloat_const_ptr', 'magmaDouble_const_ptr','magmaFloatComplex_const_ptr', 'magmaDoubleComplex_const_ptr'),  # before magmaDoubleComplex
-     ('magmaFloat_const_ptr', 'magmaDouble_const_ptr','magmaFloat_const_ptr',        'magmaDouble_const_ptr'       ),  # before magmaDoubleComplex
