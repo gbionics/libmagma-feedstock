@@ -91,6 +91,8 @@ package:
 source:
   - url: https://icl.utk.edu/projectsfiles/magma/downloads/magma-{{ version }}.tar.gz
     sha256: ff77fd3726b3dfec3bfb55790b06480aa5cc384396c2db35c56fdae4a82c641c
+    patches:
+      - patches/0001-backport-pr65-hipblas-v2-compat.patch
 
 build:
   number: 0
@@ -124,7 +126,7 @@ requirements:
     - cuda-profiler-api  # [cuda_compiler_version != "None"]
     - libcublas-dev  # [cuda_compiler_version != "None"]
     - libcusparse-dev  # [cuda_compiler_version != "None"]
-    - rocm-core 7.2.*  # [hip_compiler_version != "None"]
+    - rocm-core {{ rocm_version }} # [hip_compiler_version != "None"]
     - hipblas-common  # [hip_compiler_version != "None"]
     - hipblas  # [hip_compiler_version != "None"]
     - hipsparse  # [hip_compiler_version != "None"]
