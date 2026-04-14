@@ -1,0 +1,73 @@
+diff --git a/interface_hip/blas_c_v2.cpp b/interface_hip/blas_c_v2.cpp
+index f11bd30..a9c12c2 100644
+--- a/interface_hip/blas_c_v2.cpp
++++ b/interface_hip/blas_c_v2.cpp
+@@ -1859,7 +1859,7 @@ magma_ctrmm(
+ 		    int(m), int(n),
+ 		    (hipFloatComplex*)&alpha, (const hipFloatComplex*)dA, int(ldda),
+ 		    (hipFloatComplex*)dB, int(lddb)
+-    #if (ROCM_VERSION >= 60000)
++    #if (ROCM_VERSION >= 60000) || (hipblasVersionMajor >= 2)
+ 		    , (hipFloatComplex*)dB, int(lddb)
+     #endif
+ 		    );
+diff --git a/interface_hip/blas_h_v2.cpp b/interface_hip/blas_h_v2.cpp
+index b0cf239..d88222a 100644
+--- a/interface_hip/blas_h_v2.cpp
++++ b/interface_hip/blas_h_v2.cpp
+@@ -118,10 +118,17 @@ magma_hgemm(
+ 		      hipblas_trans_const( transA ),
+ 		      hipblas_trans_const( transB ),
+ 		      int(m), int(n), int(k),
+-		      (void*)&alpha, (void*)dA, HIPBLAS_R_16F, int(ldda),
+-		      (void*)dB, HIPBLAS_R_16F, int(lddb),
+-		      (void *)&beta,  (void*)dC, HIPBLAS_R_16F, int(lddc),
+-		      HIPBLAS_R_16F,
++		      #if hipblasVersionMajor >= 3
++                      (void*)&alpha, (void*)dA, HIP_R_16F, int(ldda),
++                      (void*)dB, HIP_R_16F, int(lddb),
++                      (void *)&beta,  (void*)dC, HIP_R_16F, int(lddc),
++                      (hipblasComputeType_t)HIP_R_16F,
++                      #else
++                      (void*)&alpha, (void*)dA, HIPBLAS_R_16F, int(ldda),
++                      (void*)dB, HIPBLAS_R_16F, int(lddb),
++                      (void *)&beta,  (void*)dC, HIPBLAS_R_16F, int(lddc),
++                      HIPBLAS_R_16F,
++                      #endif
+ 		      HIPBLAS_GEMM_DEFAULT);
+     }
+     else {
+@@ -151,10 +158,17 @@ magma_hgemmx(
+ 		      hipblas_trans_const( transA ),
+ 		      hipblas_trans_const( transB ),
+ 		      int(m), int(n), int(k),
+-		      (void*)&alpha, (void*)dA, HIPBLAS_R_16F, int(ldda),
++		      #if hipblasVersionMajor >= 3
++                      (void*)&alpha, (void*)dA, HIP_R_16F, int(ldda),
++                                     (void*)dB, HIP_R_16F, int(lddb),
++                      (void*)&beta,  (void*)dC, HIP_R_32F, int(lddc),
++                      (hipblasComputeType_t)HIP_R_32F,
++                      #else
++                      (void*)&alpha, (void*)dA, HIPBLAS_R_16F, int(ldda),
+                                      (void*)dB, HIPBLAS_R_16F, int(lddb),
+-		      (void*)&beta,  (void*)dC, HIPBLAS_R_32F, int(lddc),
+-		      HIPBLAS_R_32F,
++                      (void*)&beta,  (void*)dC, HIPBLAS_R_32F, int(lddc),
++                      HIPBLAS_R_32F,
++                      #endif
+ 		      HIPBLAS_GEMM_DEFAULT);
+     }
+     else {
+diff --git a/interface_hip/blas_z_v2.cpp b/interface_hip/blas_z_v2.cpp
+index 388a5db..f757e6f 100644
+--- a/interface_hip/blas_z_v2.cpp
++++ b/interface_hip/blas_z_v2.cpp
+@@ -1859,7 +1859,7 @@ magma_ztrmm(
+ 		    int(m), int(n),
+ 		    (hipDoubleComplex*)&alpha, (const hipDoubleComplex*)dA, int(ldda),
+ 		    (hipDoubleComplex*)dB, int(lddb)
+-    #if (ROCM_VERSION >= 60000)
++    #if (ROCM_VERSION >= 60000) || (hipblasVersionMajor >= 2)
+ 		    , (hipDoubleComplex*)dB, int(lddb)
+     #endif
+ 		    );

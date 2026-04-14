@@ -81,6 +81,814 @@ index 5617031..474e1e3 100644
  		      HIPBLAS_GEMM_DEFAULT);
      }
      else {
+diff --git a/interface_hip/blas_c_v2.cpp b/interface_hip/blas_c_v2.cpp
+index ce6cc65..f11bd30 100644
+--- a/interface_hip/blas_c_v2.cpp
++++ b/interface_hip/blas_c_v2.cpp
+@@ -24,20 +24,20 @@
+  */
+ /*#ifdef PRECISION_z
+   #ifdef MAGMA_HAVE_HIP
+-    typedef hipFloatComplex hipblasComplex;
++    typedef hipFloatComplex hipFloatComplex;
+   #else
+-    typedef hipblasComplex hipblasComplex;
++    typedef hipFloatComplex hipFloatComplex;
+   #endif
+ #elif defined(PRECISION_c)
+   #ifdef MAGMA_HAVE_HIP
+-    typedef hipComplex hipblasComplex;
++    typedef hipComplex hipFloatComplex;
+   #else
+-    typedef hipblasFloatComplex hipblasComplex;
++    typedef hipblasFloatComplex hipFloatComplex;
+   #endif
+ #elif defined(PRECISION_d)
+-  typedef float hipblasComplex;
++  typedef float hipFloatComplex;
+ #else
+-  typedef float hipblasComplex;
++  typedef float hipFloatComplex;
+ #endif
+ */
+ //#ifdef MAGMA_HAVE_CUDA
+@@ -72,7 +72,7 @@ magma_icamax(
+     magma_queue_t queue )
+ {
+     int result; /* not magma_int_t */
+-    hipblasIcamax( queue->hipblas_handle(), int(n), (hipblasComplex*)dx, int(incx), &result );
++    hipblasIcamax( queue->hipblas_handle(), int(n), (hipFloatComplex*)dx, int(incx), &result );
+     return result;
+ }
+ 
+@@ -104,7 +104,7 @@ magma_icamin(
+     magma_queue_t queue )
+ {
+     int result; /* not magma_int_t */
+-    hipblasIcamin( queue->hipblas_handle(), int(n), (hipblasComplex*)dx, int(incx), &result );
++    hipblasIcamin( queue->hipblas_handle(), int(n), (hipFloatComplex*)dx, int(incx), &result );
+     return result;
+ }
+ 
+@@ -136,7 +136,7 @@ magma_scasum(
+     magma_queue_t queue )
+ {
+     float result;
+-    hipblasScasum( queue->hipblas_handle(), int(n), (hipblasComplex*)dx, int(incx), &result );
++    hipblasScasum( queue->hipblas_handle(), int(n), (hipFloatComplex*)dx, int(incx), &result );
+     return result;
+ }
+ 
+@@ -178,7 +178,7 @@ magma_caxpy(
+     magmaFloatComplex_ptr       dy, magma_int_t incy,
+     magma_queue_t queue )
+ {
+-    hipblasCaxpy( queue->hipblas_handle(), int(n), (hipblasComplex*)&alpha, (hipblasComplex*)dx, int(incx), (hipblasComplex*)dy, int(incy) );
++    hipblasCaxpy( queue->hipblas_handle(), int(n), (hipFloatComplex*)&alpha, (hipFloatComplex*)dx, int(incx), (hipFloatComplex*)dy, int(incy) );
+ }
+ 
+ 
+@@ -215,7 +215,7 @@ magma_ccopy(
+     magmaFloatComplex_ptr       dy, magma_int_t incy,
+     magma_queue_t queue )
+ {
+-    hipblasCcopy( queue->hipblas_handle(), int(n), (hipblasComplex*)dx, int(incx), (hipblasComplex*)dy, int(incy) );
++    hipblasCcopy( queue->hipblas_handle(), int(n), (hipFloatComplex*)dx, int(incx), (hipFloatComplex*)dy, int(incy) );
+ }
+ 
+ 
+@@ -254,7 +254,7 @@ magmaFloatComplex magma_cdotc(
+     magma_queue_t queue )
+ {
+     magmaFloatComplex result;
+-    hipblasCdotc( queue->hipblas_handle(), int(n), (hipblasComplex*)dx, int(incx), (hipblasComplex*)dy, int(incy), (hipblasComplex*)&result );
++    hipblasCdotc( queue->hipblas_handle(), int(n), (hipFloatComplex*)dx, int(incx), (hipFloatComplex*)dy, int(incy), (hipFloatComplex*)&result );
+     return result;
+ }
+ #endif // COMPLEX
+@@ -294,7 +294,7 @@ magmaFloatComplex magma_cdotu(
+     magma_queue_t queue )
+ {
+     magmaFloatComplex result;
+-    hipblasCdotu( queue->hipblas_handle(), int(n), (hipblasComplex*)dx, int(incx), (hipblasComplex*)dy, int(incy), (hipblasComplex*)&result );
++    hipblasCdotu( queue->hipblas_handle(), int(n), (hipFloatComplex*)dx, int(incx), (hipFloatComplex*)dy, int(incy), (hipFloatComplex*)&result );
+     return result;
+ }
+ 
+@@ -326,7 +326,7 @@ magma_scnrm2(
+     magma_queue_t queue )
+ {
+     float result;
+-    hipblasScnrm2( queue->hipblas_handle(), int(n), (hipblasComplex*)dx, int(incx), &result );
++    hipblasScnrm2( queue->hipblas_handle(), int(n), (hipFloatComplex*)dx, int(incx), &result );
+     return result;
+ }
+ 
+@@ -375,7 +375,7 @@ magma_crot(
+     float c, magmaFloatComplex s,
+     magma_queue_t queue )
+ {
+-    hipblasCrot( queue->hipblas_handle(), int(n), (hipblasComplex*)dx, int(incx), (hipblasComplex*)dy, int(incy), &c, (hipblasComplex*)&s );
++    hipblasCrot( queue->hipblas_handle(), int(n), (hipFloatComplex*)dx, int(incx), (hipFloatComplex*)dy, int(incy), &c, (hipFloatComplex*)&s );
+ }
+ 
+ 
+@@ -424,7 +424,7 @@ magma_csrot(
+     float c, float s,
+     magma_queue_t queue )
+ {
+-    hipblasCsrot( queue->hipblas_handle(), int(n), (hipblasComplex*)dx, int(incx), (hipblasComplex*)dy, int(incy), &c, &s );
++    hipblasCsrot( queue->hipblas_handle(), int(n), (hipFloatComplex*)dx, int(incx), (hipFloatComplex*)dy, int(incy), &c, &s );
+ }
+ #endif // COMPLEX
+ 
+@@ -469,7 +469,7 @@ magma_crotg(
+     float             *c, magmaFloatComplex *s,
+     magma_queue_t queue )
+ {
+-    hipblasCrotg( queue->hipblas_handle(), (hipblasComplex*)a, (hipblasComplex*)b, c, (hipblasComplex*)s );
++    hipblasCrotg( queue->hipblas_handle(), (hipFloatComplex*)a, (hipFloatComplex*)b, c, (hipFloatComplex*)s );
+ }
+ 
+ 
+@@ -539,7 +539,7 @@ magma_cscal(
+     magmaFloatComplex_ptr dx, magma_int_t incx,
+     magma_queue_t queue )
+ {
+-    hipblasCscal( queue->hipblas_handle(), int(n), (hipblasComplex*)&alpha, (hipblasComplex*)dx, int(incx) );
++    hipblasCscal( queue->hipblas_handle(), int(n), (hipFloatComplex*)&alpha, (hipFloatComplex*)dx, int(incx) );
+ }
+ 
+ 
+@@ -573,7 +573,7 @@ magma_csscal(
+     magmaFloatComplex_ptr dx, magma_int_t incx,
+     magma_queue_t queue )
+ {
+-    hipblasCsscal( queue->hipblas_handle(), int(n), &alpha, (hipblasComplex*)dx, int(incx) );
++    hipblasCsscal( queue->hipblas_handle(), int(n), &alpha, (hipFloatComplex*)dx, int(incx) );
+ }
+ #endif // COMPLEX
+ 
+@@ -611,7 +611,7 @@ magma_cswap(
+     magmaFloatComplex_ptr dy, magma_int_t incy,
+     magma_queue_t queue )
+ {
+-    hipblasCswap( queue->hipblas_handle(), int(n), (hipblasComplex*)dx, int(incx), (hipblasComplex*)dy, int(incy) );
++    hipblasCswap( queue->hipblas_handle(), int(n), (hipFloatComplex*)dx, int(incx), (hipFloatComplex*)dy, int(incy) );
+ }
+ 
+ 
+@@ -683,9 +683,9 @@ magma_cgemv(
+         queue->hipblas_handle(),
+         hipblas_trans_const( transA ),
+         int(m), int(n),
+-        (hipblasComplex*)&alpha, (hipblasComplex*)dA, int(ldda),
+-                (hipblasComplex*)dx, int(incx),
+-        (hipblasComplex*)&beta,  (hipblasComplex*)dy, int(incy) );
++        (hipFloatComplex*)&alpha, (hipFloatComplex*)dA, int(ldda),
++                (hipFloatComplex*)dx, int(incx),
++        (hipFloatComplex*)&beta,  (hipFloatComplex*)dy, int(incy) );
+ }
+ 
+ 
+@@ -741,9 +741,9 @@ magma_cgerc(
+     hipblasCgerc(
+         queue->hipblas_handle(),
+         int(m), int(n),
+-        (hipblasComplex*)&alpha, (hipblasComplex*)dx, int(incx),
+-                (hipblasComplex*)dy, int(incy),
+-                (hipblasComplex*)dA, int(ldda) );
++        (hipFloatComplex*)&alpha, (hipFloatComplex*)dx, int(incx),
++                (hipFloatComplex*)dy, int(incy),
++                (hipFloatComplex*)dA, int(ldda) );
+ }
+ #endif // COMPLEX
+ 
+@@ -799,9 +799,9 @@ magma_cgeru(
+     hipblasCgeru(
+         queue->hipblas_handle(),
+         int(m), int(n),
+-        (hipblasComplex*)&alpha, (hipblasComplex*)dx, int(incx),
+-                (hipblasComplex*)dy, int(incy),
+-                (hipblasComplex*)dA, int(ldda) );
++        (hipFloatComplex*)&alpha, (hipFloatComplex*)dx, int(incx),
++                (hipFloatComplex*)dy, int(incy),
++                (hipFloatComplex*)dA, int(ldda) );
+ }
+ 
+ 
+@@ -864,9 +864,9 @@ magma_chemv(
+         queue->hipblas_handle(),
+         hipblas_uplo_const( uplo ),
+         int(n),
+-        (hipblasComplex*)&alpha, (hipblasComplex*)dA, int(ldda),
+-                (hipblasComplex*)dx, int(incx),
+-        (hipblasComplex*)&beta,  (hipblasComplex*)dy, int(incy) );
++        (hipFloatComplex*)&alpha, (hipFloatComplex*)dA, int(ldda),
++                (hipFloatComplex*)dx, int(incx),
++        (hipFloatComplex*)&beta,  (hipFloatComplex*)dy, int(incy) );
+ }
+ #endif // COMPLEX
+ 
+@@ -918,8 +918,8 @@ magma_cher(
+         queue->hipblas_handle(),
+         hipblas_uplo_const( uplo ),
+         int(n),
+-        (const float*)&alpha, (hipblasComplex*)dx, int(incx),
+-                (hipblasComplex*)dA, int(ldda) );
++        (const float*)&alpha, (hipFloatComplex*)dx, int(incx),
++                (hipFloatComplex*)dA, int(ldda) );
+ }
+ #endif // COMPLEX
+ 
+@@ -979,9 +979,9 @@ magma_cher2(
+         queue->hipblas_handle(),
+         hipblas_uplo_const( uplo ),
+         int(n),
+-        (hipblasComplex*)&alpha, (hipblasComplex*)dx, int(incx),
+-                (hipblasComplex*)dy, int(incy),
+-                (hipblasComplex*)dA, int(ldda) );
++        (hipFloatComplex*)&alpha, (hipFloatComplex*)dx, int(incx),
++                (hipFloatComplex*)dy, int(incy),
++                (hipFloatComplex*)dA, int(ldda) );
+ }
+ #endif // COMPLEX
+ 
+@@ -1044,9 +1044,9 @@ magma_csymv(
+         queue->hipblas_handle(),
+         hipblas_uplo_const( uplo ),
+         int(n),
+-        (hipblasComplex*)&alpha, (hipblasComplex*)dA, int(ldda),
+-                (hipblasComplex*)dx, int(incx),
+-        (hipblasComplex*)&beta,  (hipblasComplex*)dy, int(incy) );
++        (hipFloatComplex*)&alpha, (hipFloatComplex*)dA, int(ldda),
++                (hipFloatComplex*)dx, int(incx),
++        (hipFloatComplex*)&beta,  (hipFloatComplex*)dy, int(incy) );
+ }
+ 
+ 
+@@ -1096,8 +1096,8 @@ magma_csyr(
+         queue->hipblas_handle(),
+         hipblas_uplo_const( uplo ),
+         int(n),
+-        (hipblasComplex*)&alpha, (hipblasComplex*)dx, int(incx),
+-                (hipblasComplex*)dA, int(ldda) );
++        (hipFloatComplex*)&alpha, (hipFloatComplex*)dx, int(incx),
++                (hipFloatComplex*)dA, int(ldda) );
+ }
+ 
+ 
+@@ -1155,9 +1155,9 @@ magma_csyr2(
+         queue->hipblas_handle(),
+         hipblas_uplo_const( uplo ),
+         int(n),
+-        (hipblasComplex*)&alpha, (hipblasComplex*)dx, int(incx),
+-                (hipblasComplex*)dy, int(incy),
+-                (hipblasComplex*)dA, int(ldda) );
++        (hipFloatComplex*)&alpha, (hipFloatComplex*)dx, int(incx),
++                (hipFloatComplex*)dy, int(incy),
++                (hipFloatComplex*)dA, int(ldda) );
+ }
+ 
+ 
+@@ -1213,8 +1213,8 @@ magma_ctrmv(
+         hipblas_trans_const( trans ),
+         hipblas_diag_const( diag ),
+         int(n),
+-        (hipblasComplex*)dA, int(ldda),
+-        (hipblasComplex*)dx, int(incx) );
++        (hipFloatComplex*)dA, int(ldda),
++        (hipFloatComplex*)dx, int(incx) );
+ }
+ 
+ 
+@@ -1271,8 +1271,8 @@ magma_ctrsv(
+         hipblas_trans_const( trans ),
+         hipblas_diag_const( diag ),
+         int(n),
+-        (hipblasComplex*)dA, int(ldda),
+-        (hipblasComplex*)dx, int(incx) );
++        (hipFloatComplex*)dA, int(ldda),
++        (hipFloatComplex*)dx, int(incx) );
+ }
+ 
+ 
+@@ -1348,9 +1348,9 @@ magma_cgemm(
+         hipblas_trans_const( transA ),
+         hipblas_trans_const( transB ),
+         int(m), int(n), int(k),
+-        (hipblasComplex*)&alpha, (hipblasComplex*)dA, int(ldda),
+-                (hipblasComplex*)dB, int(lddb),
+-        (hipblasComplex*)&beta,  (hipblasComplex*)dC, int(lddc) );
++        (hipFloatComplex*)&alpha, (hipFloatComplex*)dA, int(ldda),
++                (hipFloatComplex*)dB, int(lddb),
++        (hipFloatComplex*)&beta,  (hipFloatComplex*)dC, int(lddc) );
+ }
+ 
+ #ifdef COMPLEX
+@@ -1422,9 +1422,9 @@ magma_chemm(
+         hipblas_side_const( side ),
+         hipblas_uplo_const( uplo ),
+         int(m), int(n),
+-        (hipblasComplex*)&alpha, (hipblasComplex*)dA, int(ldda),
+-                (hipblasComplex*)dB, int(lddb),
+-        (hipblasComplex*)&beta,  (hipblasComplex*)dC, int(lddc) );
++        (hipFloatComplex*)&alpha, (hipFloatComplex*)dA, int(ldda),
++                (hipFloatComplex*)dB, int(lddb),
++        (hipFloatComplex*)&beta,  (hipFloatComplex*)dC, int(lddc) );
+ }
+ #endif // COMPLEX
+ 
+@@ -1491,8 +1491,8 @@ magma_cherk(
+         hipblas_uplo_const( uplo ),
+         hipblas_trans_const( trans ),
+         int(n), int(k),
+-        &alpha, (hipblasComplex*)dA, int(ldda),
+-        &beta,  (hipblasComplex*)dC, int(lddc) );
++        &alpha, (hipFloatComplex*)dA, int(ldda),
++        &beta,  (hipFloatComplex*)dC, int(lddc) );
+ }
+ #endif // COMPLEX
+ 
+@@ -1568,9 +1568,9 @@ magma_cher2k(
+         hipblas_uplo_const( uplo ),
+         hipblas_trans_const( trans ),
+         int(n), int(k),
+-        (hipblasComplex*)&alpha, (hipblasComplex*)dA, int(ldda),
+-                (hipblasComplex*)dB, int(lddb),
+-        &beta,  (hipblasComplex*)dC, int(lddc) );
++        (hipFloatComplex*)&alpha, (hipFloatComplex*)dA, int(ldda),
++                (hipFloatComplex*)dB, int(lddb),
++        &beta,  (hipFloatComplex*)dC, int(lddc) );
+ }
+ #endif // COMPLEX
+ 
+@@ -1643,9 +1643,9 @@ magma_csymm(
+         hipblas_side_const( side ),
+         hipblas_uplo_const( uplo ),
+         int(m), int(n),
+-        (hipblasComplex*)&alpha, (hipblasComplex*)dA, int(ldda),
+-                (hipblasComplex*)dB, int(lddb),
+-        (hipblasComplex*)&beta,  (hipblasComplex*)dC, int(lddc) );
++        (hipFloatComplex*)&alpha, (hipFloatComplex*)dA, int(ldda),
++                (hipFloatComplex*)dB, int(lddb),
++        (hipFloatComplex*)&beta,  (hipFloatComplex*)dC, int(lddc) );
+ }
+ 
+ 
+@@ -1710,8 +1710,8 @@ magma_csyrk(
+         hipblas_uplo_const( uplo ),
+         hipblas_trans_const( trans ),
+         int(n), int(k),
+-        (hipblasComplex*)&alpha, (hipblasComplex*)dA, int(ldda),
+-        (hipblasComplex*)&beta,  (hipblasComplex*)dC, int(lddc) );
++        (hipFloatComplex*)&alpha, (hipFloatComplex*)dA, int(ldda),
++        (hipFloatComplex*)&beta,  (hipFloatComplex*)dC, int(lddc) );
+ }
+ 
+ 
+@@ -1785,9 +1785,9 @@ magma_csyr2k(
+         hipblas_uplo_const( uplo ),
+         hipblas_trans_const( trans ),
+         int(n), int(k),
+-        (hipblasComplex*)&alpha, (hipblasComplex*)dA, int(ldda),
+-                (hipblasComplex*)dB, int(lddb),
+-        (hipblasComplex*)&beta,  (hipblasComplex*)dC, int(lddc) );
++        (hipFloatComplex*)&alpha, (hipFloatComplex*)dA, int(ldda),
++                (hipFloatComplex*)dB, int(lddb),
++        (hipFloatComplex*)&beta,  (hipFloatComplex*)dC, int(lddc) );
+ }
+ 
+ 
+@@ -1857,10 +1857,10 @@ magma_ctrmm(
+                     hipblas_trans_const( trans ),
+                     hipblas_diag_const( diag ),
+ 		    int(m), int(n),
+-		    (hipblasComplex*)&alpha, (const hipblasComplex*)dA, int(ldda),
+-		    (hipblasComplex*)dB, int(lddb)
++		    (hipFloatComplex*)&alpha, (const hipFloatComplex*)dA, int(ldda),
++		    (hipFloatComplex*)dB, int(lddb)
+     #if (ROCM_VERSION >= 60000)
+-		    , (hipblasComplex*)dB, int(lddb)
++		    , (hipFloatComplex*)dB, int(lddb)
+     #endif
+ 		    );
+     #else
+@@ -1943,8 +1943,8 @@ magma_ctrsm(
+         hipblas_trans_const( trans ),
+         hipblas_diag_const( diag ),
+         int(m), int(n),
+-        (hipblasComplex*)&alpha, (hipblasComplex*)dA, int(ldda),
+-                (hipblasComplex*)dB, int(lddb) );
++        (hipFloatComplex*)&alpha, (hipFloatComplex*)dA, int(ldda),
++                (hipFloatComplex*)dB, int(lddb) );
+ }
+ 
+ //#endif // MAGMA_HAVE_CUDA
+diff --git a/interface_hip/blas_z_v2.cpp b/interface_hip/blas_z_v2.cpp
+index 63ffa8f..388a5db 100644
+--- a/interface_hip/blas_z_v2.cpp
++++ b/interface_hip/blas_z_v2.cpp
+@@ -24,20 +24,20 @@
+  */
+ /*#ifdef PRECISION_z
+   #ifdef MAGMA_HAVE_HIP
+-    typedef hipDoubleComplex hipblasDoubleComplex;
++    typedef hipDoubleComplex hipDoubleComplex;
+   #else
+-    typedef hipblasDoubleComplex hipblasDoubleComplex;
++    typedef hipDoubleComplex hipDoubleComplex;
+   #endif
+ #elif defined(PRECISION_c)
+   #ifdef MAGMA_HAVE_HIP
+-    typedef hipComplex hipblasDoubleComplex;
++    typedef hipComplex hipDoubleComplex;
+   #else
+-    typedef hipblasFloatComplex hipblasDoubleComplex;
++    typedef hipblasFloatComplex hipDoubleComplex;
+   #endif
+ #elif defined(PRECISION_d)
+-  typedef double hipblasDoubleComplex;
++  typedef double hipDoubleComplex;
+ #else
+-  typedef float hipblasDoubleComplex;
++  typedef float hipDoubleComplex;
+ #endif
+ */
+ //#ifdef MAGMA_HAVE_CUDA
+@@ -72,7 +72,7 @@ magma_izamax(
+     magma_queue_t queue )
+ {
+     int result; /* not magma_int_t */
+-    hipblasIzamax( queue->hipblas_handle(), int(n), (hipblasDoubleComplex*)dx, int(incx), &result );
++    hipblasIzamax( queue->hipblas_handle(), int(n), (hipDoubleComplex*)dx, int(incx), &result );
+     return result;
+ }
+ 
+@@ -104,7 +104,7 @@ magma_izamin(
+     magma_queue_t queue )
+ {
+     int result; /* not magma_int_t */
+-    hipblasIzamin( queue->hipblas_handle(), int(n), (hipblasDoubleComplex*)dx, int(incx), &result );
++    hipblasIzamin( queue->hipblas_handle(), int(n), (hipDoubleComplex*)dx, int(incx), &result );
+     return result;
+ }
+ 
+@@ -136,7 +136,7 @@ magma_dzasum(
+     magma_queue_t queue )
+ {
+     double result;
+-    hipblasDzasum( queue->hipblas_handle(), int(n), (hipblasDoubleComplex*)dx, int(incx), &result );
++    hipblasDzasum( queue->hipblas_handle(), int(n), (hipDoubleComplex*)dx, int(incx), &result );
+     return result;
+ }
+ 
+@@ -178,7 +178,7 @@ magma_zaxpy(
+     magmaDoubleComplex_ptr       dy, magma_int_t incy,
+     magma_queue_t queue )
+ {
+-    hipblasZaxpy( queue->hipblas_handle(), int(n), (hipblasDoubleComplex*)&alpha, (hipblasDoubleComplex*)dx, int(incx), (hipblasDoubleComplex*)dy, int(incy) );
++    hipblasZaxpy( queue->hipblas_handle(), int(n), (hipDoubleComplex*)&alpha, (hipDoubleComplex*)dx, int(incx), (hipDoubleComplex*)dy, int(incy) );
+ }
+ 
+ 
+@@ -215,7 +215,7 @@ magma_zcopy(
+     magmaDoubleComplex_ptr       dy, magma_int_t incy,
+     magma_queue_t queue )
+ {
+-    hipblasZcopy( queue->hipblas_handle(), int(n), (hipblasDoubleComplex*)dx, int(incx), (hipblasDoubleComplex*)dy, int(incy) );
++    hipblasZcopy( queue->hipblas_handle(), int(n), (hipDoubleComplex*)dx, int(incx), (hipDoubleComplex*)dy, int(incy) );
+ }
+ 
+ 
+@@ -254,7 +254,7 @@ magmaDoubleComplex magma_zdotc(
+     magma_queue_t queue )
+ {
+     magmaDoubleComplex result;
+-    hipblasZdotc( queue->hipblas_handle(), int(n), (hipblasDoubleComplex*)dx, int(incx), (hipblasDoubleComplex*)dy, int(incy), (hipblasDoubleComplex*)&result );
++    hipblasZdotc( queue->hipblas_handle(), int(n), (hipDoubleComplex*)dx, int(incx), (hipDoubleComplex*)dy, int(incy), (hipDoubleComplex*)&result );
+     return result;
+ }
+ #endif // COMPLEX
+@@ -294,7 +294,7 @@ magmaDoubleComplex magma_zdotu(
+     magma_queue_t queue )
+ {
+     magmaDoubleComplex result;
+-    hipblasZdotu( queue->hipblas_handle(), int(n), (hipblasDoubleComplex*)dx, int(incx), (hipblasDoubleComplex*)dy, int(incy), (hipblasDoubleComplex*)&result );
++    hipblasZdotu( queue->hipblas_handle(), int(n), (hipDoubleComplex*)dx, int(incx), (hipDoubleComplex*)dy, int(incy), (hipDoubleComplex*)&result );
+     return result;
+ }
+ 
+@@ -326,7 +326,7 @@ magma_dznrm2(
+     magma_queue_t queue )
+ {
+     double result;
+-    hipblasDznrm2( queue->hipblas_handle(), int(n), (hipblasDoubleComplex*)dx, int(incx), &result );
++    hipblasDznrm2( queue->hipblas_handle(), int(n), (hipDoubleComplex*)dx, int(incx), &result );
+     return result;
+ }
+ 
+@@ -375,7 +375,7 @@ magma_zrot(
+     double c, magmaDoubleComplex s,
+     magma_queue_t queue )
+ {
+-    hipblasZrot( queue->hipblas_handle(), int(n), (hipblasDoubleComplex*)dx, int(incx), (hipblasDoubleComplex*)dy, int(incy), &c, (hipblasDoubleComplex*)&s );
++    hipblasZrot( queue->hipblas_handle(), int(n), (hipDoubleComplex*)dx, int(incx), (hipDoubleComplex*)dy, int(incy), &c, (hipDoubleComplex*)&s );
+ }
+ 
+ 
+@@ -424,7 +424,7 @@ magma_zdrot(
+     double c, double s,
+     magma_queue_t queue )
+ {
+-    hipblasZdrot( queue->hipblas_handle(), int(n), (hipblasDoubleComplex*)dx, int(incx), (hipblasDoubleComplex*)dy, int(incy), &c, &s );
++    hipblasZdrot( queue->hipblas_handle(), int(n), (hipDoubleComplex*)dx, int(incx), (hipDoubleComplex*)dy, int(incy), &c, &s );
+ }
+ #endif // COMPLEX
+ 
+@@ -469,7 +469,7 @@ magma_zrotg(
+     double             *c, magmaDoubleComplex *s,
+     magma_queue_t queue )
+ {
+-    hipblasZrotg( queue->hipblas_handle(), (hipblasDoubleComplex*)a, (hipblasDoubleComplex*)b, c, (hipblasDoubleComplex*)s );
++    hipblasZrotg( queue->hipblas_handle(), (hipDoubleComplex*)a, (hipDoubleComplex*)b, c, (hipDoubleComplex*)s );
+ }
+ 
+ 
+@@ -539,7 +539,7 @@ magma_zscal(
+     magmaDoubleComplex_ptr dx, magma_int_t incx,
+     magma_queue_t queue )
+ {
+-    hipblasZscal( queue->hipblas_handle(), int(n), (hipblasDoubleComplex*)&alpha, (hipblasDoubleComplex*)dx, int(incx) );
++    hipblasZscal( queue->hipblas_handle(), int(n), (hipDoubleComplex*)&alpha, (hipDoubleComplex*)dx, int(incx) );
+ }
+ 
+ 
+@@ -573,7 +573,7 @@ magma_zdscal(
+     magmaDoubleComplex_ptr dx, magma_int_t incx,
+     magma_queue_t queue )
+ {
+-    hipblasZdscal( queue->hipblas_handle(), int(n), &alpha, (hipblasDoubleComplex*)dx, int(incx) );
++    hipblasZdscal( queue->hipblas_handle(), int(n), &alpha, (hipDoubleComplex*)dx, int(incx) );
+ }
+ #endif // COMPLEX
+ 
+@@ -611,7 +611,7 @@ magma_zswap(
+     magmaDoubleComplex_ptr dy, magma_int_t incy,
+     magma_queue_t queue )
+ {
+-    hipblasZswap( queue->hipblas_handle(), int(n), (hipblasDoubleComplex*)dx, int(incx), (hipblasDoubleComplex*)dy, int(incy) );
++    hipblasZswap( queue->hipblas_handle(), int(n), (hipDoubleComplex*)dx, int(incx), (hipDoubleComplex*)dy, int(incy) );
+ }
+ 
+ 
+@@ -683,9 +683,9 @@ magma_zgemv(
+         queue->hipblas_handle(),
+         hipblas_trans_const( transA ),
+         int(m), int(n),
+-        (hipblasDoubleComplex*)&alpha, (hipblasDoubleComplex*)dA, int(ldda),
+-                (hipblasDoubleComplex*)dx, int(incx),
+-        (hipblasDoubleComplex*)&beta,  (hipblasDoubleComplex*)dy, int(incy) );
++        (hipDoubleComplex*)&alpha, (hipDoubleComplex*)dA, int(ldda),
++                (hipDoubleComplex*)dx, int(incx),
++        (hipDoubleComplex*)&beta,  (hipDoubleComplex*)dy, int(incy) );
+ }
+ 
+ 
+@@ -741,9 +741,9 @@ magma_zgerc(
+     hipblasZgerc(
+         queue->hipblas_handle(),
+         int(m), int(n),
+-        (hipblasDoubleComplex*)&alpha, (hipblasDoubleComplex*)dx, int(incx),
+-                (hipblasDoubleComplex*)dy, int(incy),
+-                (hipblasDoubleComplex*)dA, int(ldda) );
++        (hipDoubleComplex*)&alpha, (hipDoubleComplex*)dx, int(incx),
++                (hipDoubleComplex*)dy, int(incy),
++                (hipDoubleComplex*)dA, int(ldda) );
+ }
+ #endif // COMPLEX
+ 
+@@ -799,9 +799,9 @@ magma_zgeru(
+     hipblasZgeru(
+         queue->hipblas_handle(),
+         int(m), int(n),
+-        (hipblasDoubleComplex*)&alpha, (hipblasDoubleComplex*)dx, int(incx),
+-                (hipblasDoubleComplex*)dy, int(incy),
+-                (hipblasDoubleComplex*)dA, int(ldda) );
++        (hipDoubleComplex*)&alpha, (hipDoubleComplex*)dx, int(incx),
++                (hipDoubleComplex*)dy, int(incy),
++                (hipDoubleComplex*)dA, int(ldda) );
+ }
+ 
+ 
+@@ -864,9 +864,9 @@ magma_zhemv(
+         queue->hipblas_handle(),
+         hipblas_uplo_const( uplo ),
+         int(n),
+-        (hipblasDoubleComplex*)&alpha, (hipblasDoubleComplex*)dA, int(ldda),
+-                (hipblasDoubleComplex*)dx, int(incx),
+-        (hipblasDoubleComplex*)&beta,  (hipblasDoubleComplex*)dy, int(incy) );
++        (hipDoubleComplex*)&alpha, (hipDoubleComplex*)dA, int(ldda),
++                (hipDoubleComplex*)dx, int(incx),
++        (hipDoubleComplex*)&beta,  (hipDoubleComplex*)dy, int(incy) );
+ }
+ #endif // COMPLEX
+ 
+@@ -918,8 +918,8 @@ magma_zher(
+         queue->hipblas_handle(),
+         hipblas_uplo_const( uplo ),
+         int(n),
+-        (const double*)&alpha, (hipblasDoubleComplex*)dx, int(incx),
+-                (hipblasDoubleComplex*)dA, int(ldda) );
++        (const double*)&alpha, (hipDoubleComplex*)dx, int(incx),
++                (hipDoubleComplex*)dA, int(ldda) );
+ }
+ #endif // COMPLEX
+ 
+@@ -979,9 +979,9 @@ magma_zher2(
+         queue->hipblas_handle(),
+         hipblas_uplo_const( uplo ),
+         int(n),
+-        (hipblasDoubleComplex*)&alpha, (hipblasDoubleComplex*)dx, int(incx),
+-                (hipblasDoubleComplex*)dy, int(incy),
+-                (hipblasDoubleComplex*)dA, int(ldda) );
++        (hipDoubleComplex*)&alpha, (hipDoubleComplex*)dx, int(incx),
++                (hipDoubleComplex*)dy, int(incy),
++                (hipDoubleComplex*)dA, int(ldda) );
+ }
+ #endif // COMPLEX
+ 
+@@ -1044,9 +1044,9 @@ magma_zsymv(
+         queue->hipblas_handle(),
+         hipblas_uplo_const( uplo ),
+         int(n),
+-        (hipblasDoubleComplex*)&alpha, (hipblasDoubleComplex*)dA, int(ldda),
+-                (hipblasDoubleComplex*)dx, int(incx),
+-        (hipblasDoubleComplex*)&beta,  (hipblasDoubleComplex*)dy, int(incy) );
++        (hipDoubleComplex*)&alpha, (hipDoubleComplex*)dA, int(ldda),
++                (hipDoubleComplex*)dx, int(incx),
++        (hipDoubleComplex*)&beta,  (hipDoubleComplex*)dy, int(incy) );
+ }
+ 
+ 
+@@ -1096,8 +1096,8 @@ magma_zsyr(
+         queue->hipblas_handle(),
+         hipblas_uplo_const( uplo ),
+         int(n),
+-        (hipblasDoubleComplex*)&alpha, (hipblasDoubleComplex*)dx, int(incx),
+-                (hipblasDoubleComplex*)dA, int(ldda) );
++        (hipDoubleComplex*)&alpha, (hipDoubleComplex*)dx, int(incx),
++                (hipDoubleComplex*)dA, int(ldda) );
+ }
+ 
+ 
+@@ -1155,9 +1155,9 @@ magma_zsyr2(
+         queue->hipblas_handle(),
+         hipblas_uplo_const( uplo ),
+         int(n),
+-        (hipblasDoubleComplex*)&alpha, (hipblasDoubleComplex*)dx, int(incx),
+-                (hipblasDoubleComplex*)dy, int(incy),
+-                (hipblasDoubleComplex*)dA, int(ldda) );
++        (hipDoubleComplex*)&alpha, (hipDoubleComplex*)dx, int(incx),
++                (hipDoubleComplex*)dy, int(incy),
++                (hipDoubleComplex*)dA, int(ldda) );
+ }
+ 
+ 
+@@ -1213,8 +1213,8 @@ magma_ztrmv(
+         hipblas_trans_const( trans ),
+         hipblas_diag_const( diag ),
+         int(n),
+-        (hipblasDoubleComplex*)dA, int(ldda),
+-        (hipblasDoubleComplex*)dx, int(incx) );
++        (hipDoubleComplex*)dA, int(ldda),
++        (hipDoubleComplex*)dx, int(incx) );
+ }
+ 
+ 
+@@ -1271,8 +1271,8 @@ magma_ztrsv(
+         hipblas_trans_const( trans ),
+         hipblas_diag_const( diag ),
+         int(n),
+-        (hipblasDoubleComplex*)dA, int(ldda),
+-        (hipblasDoubleComplex*)dx, int(incx) );
++        (hipDoubleComplex*)dA, int(ldda),
++        (hipDoubleComplex*)dx, int(incx) );
+ }
+ 
+ 
+@@ -1348,9 +1348,9 @@ magma_zgemm(
+         hipblas_trans_const( transA ),
+         hipblas_trans_const( transB ),
+         int(m), int(n), int(k),
+-        (hipblasDoubleComplex*)&alpha, (hipblasDoubleComplex*)dA, int(ldda),
+-                (hipblasDoubleComplex*)dB, int(lddb),
+-        (hipblasDoubleComplex*)&beta,  (hipblasDoubleComplex*)dC, int(lddc) );
++        (hipDoubleComplex*)&alpha, (hipDoubleComplex*)dA, int(ldda),
++                (hipDoubleComplex*)dB, int(lddb),
++        (hipDoubleComplex*)&beta,  (hipDoubleComplex*)dC, int(lddc) );
+ }
+ 
+ #ifdef COMPLEX
+@@ -1422,9 +1422,9 @@ magma_zhemm(
+         hipblas_side_const( side ),
+         hipblas_uplo_const( uplo ),
+         int(m), int(n),
+-        (hipblasDoubleComplex*)&alpha, (hipblasDoubleComplex*)dA, int(ldda),
+-                (hipblasDoubleComplex*)dB, int(lddb),
+-        (hipblasDoubleComplex*)&beta,  (hipblasDoubleComplex*)dC, int(lddc) );
++        (hipDoubleComplex*)&alpha, (hipDoubleComplex*)dA, int(ldda),
++                (hipDoubleComplex*)dB, int(lddb),
++        (hipDoubleComplex*)&beta,  (hipDoubleComplex*)dC, int(lddc) );
+ }
+ #endif // COMPLEX
+ 
+@@ -1491,8 +1491,8 @@ magma_zherk(
+         hipblas_uplo_const( uplo ),
+         hipblas_trans_const( trans ),
+         int(n), int(k),
+-        &alpha, (hipblasDoubleComplex*)dA, int(ldda),
+-        &beta,  (hipblasDoubleComplex*)dC, int(lddc) );
++        &alpha, (hipDoubleComplex*)dA, int(ldda),
++        &beta,  (hipDoubleComplex*)dC, int(lddc) );
+ }
+ #endif // COMPLEX
+ 
+@@ -1568,9 +1568,9 @@ magma_zher2k(
+         hipblas_uplo_const( uplo ),
+         hipblas_trans_const( trans ),
+         int(n), int(k),
+-        (hipblasDoubleComplex*)&alpha, (hipblasDoubleComplex*)dA, int(ldda),
+-                (hipblasDoubleComplex*)dB, int(lddb),
+-        &beta,  (hipblasDoubleComplex*)dC, int(lddc) );
++        (hipDoubleComplex*)&alpha, (hipDoubleComplex*)dA, int(ldda),
++                (hipDoubleComplex*)dB, int(lddb),
++        &beta,  (hipDoubleComplex*)dC, int(lddc) );
+ }
+ #endif // COMPLEX
+ 
+@@ -1643,9 +1643,9 @@ magma_zsymm(
+         hipblas_side_const( side ),
+         hipblas_uplo_const( uplo ),
+         int(m), int(n),
+-        (hipblasDoubleComplex*)&alpha, (hipblasDoubleComplex*)dA, int(ldda),
+-                (hipblasDoubleComplex*)dB, int(lddb),
+-        (hipblasDoubleComplex*)&beta,  (hipblasDoubleComplex*)dC, int(lddc) );
++        (hipDoubleComplex*)&alpha, (hipDoubleComplex*)dA, int(ldda),
++                (hipDoubleComplex*)dB, int(lddb),
++        (hipDoubleComplex*)&beta,  (hipDoubleComplex*)dC, int(lddc) );
+ }
+ 
+ 
+@@ -1710,8 +1710,8 @@ magma_zsyrk(
+         hipblas_uplo_const( uplo ),
+         hipblas_trans_const( trans ),
+         int(n), int(k),
+-        (hipblasDoubleComplex*)&alpha, (hipblasDoubleComplex*)dA, int(ldda),
+-        (hipblasDoubleComplex*)&beta,  (hipblasDoubleComplex*)dC, int(lddc) );
++        (hipDoubleComplex*)&alpha, (hipDoubleComplex*)dA, int(ldda),
++        (hipDoubleComplex*)&beta,  (hipDoubleComplex*)dC, int(lddc) );
+ }
+ 
+ 
+@@ -1785,9 +1785,9 @@ magma_zsyr2k(
+         hipblas_uplo_const( uplo ),
+         hipblas_trans_const( trans ),
+         int(n), int(k),
+-        (hipblasDoubleComplex*)&alpha, (hipblasDoubleComplex*)dA, int(ldda),
+-                (hipblasDoubleComplex*)dB, int(lddb),
+-        (hipblasDoubleComplex*)&beta,  (hipblasDoubleComplex*)dC, int(lddc) );
++        (hipDoubleComplex*)&alpha, (hipDoubleComplex*)dA, int(ldda),
++                (hipDoubleComplex*)dB, int(lddb),
++        (hipDoubleComplex*)&beta,  (hipDoubleComplex*)dC, int(lddc) );
+ }
+ 
+ 
+@@ -1857,10 +1857,10 @@ magma_ztrmm(
+                     hipblas_trans_const( trans ),
+                     hipblas_diag_const( diag ),
+ 		    int(m), int(n),
+-		    (hipblasDoubleComplex*)&alpha, (const hipblasDoubleComplex*)dA, int(ldda),
+-		    (hipblasDoubleComplex*)dB, int(lddb)
++		    (hipDoubleComplex*)&alpha, (const hipDoubleComplex*)dA, int(ldda),
++		    (hipDoubleComplex*)dB, int(lddb)
+     #if (ROCM_VERSION >= 60000)
+-		    , (hipblasDoubleComplex*)dB, int(lddb)
++		    , (hipDoubleComplex*)dB, int(lddb)
+     #endif
+ 		    );
+     #else
+@@ -1943,8 +1943,8 @@ magma_ztrsm(
+         hipblas_trans_const( trans ),
+         hipblas_diag_const( diag ),
+         int(m), int(n),
+-        (hipblasDoubleComplex*)&alpha, (hipblasDoubleComplex*)dA, int(ldda),
+-                (hipblasDoubleComplex*)dB, int(lddb) );
++        (hipDoubleComplex*)&alpha, (hipDoubleComplex*)dA, int(ldda),
++                (hipDoubleComplex*)dB, int(lddb) );
+ }
+ 
+ //#endif // MAGMA_HAVE_CUDA
 diff --git a/magmablas/zgemm_batched.cpp b/magmablas/zgemm_batched.cpp
 index b0aec1c..73140b8 100644
 --- a/magmablas/zgemm_batched.cpp

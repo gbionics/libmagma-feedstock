@@ -94,9 +94,10 @@ source:
     patches:
       - patches/0001-backport-pr65-hipblas-v2-compat.patch
       - patches/0002-add-gfx115x-valid-targets.patch
+      - patches/0003-backport-utk-magma-rocm70-hip-api-compat.patch
 
 build:
-  number: 0
+  number: 2
   script_env:
     - ROCK_THE_CONDA_ROCM_GPU_TARGETS
   skip: true  # [cuda_compiler_version == "None" and hip_compiler_version == "None"]
