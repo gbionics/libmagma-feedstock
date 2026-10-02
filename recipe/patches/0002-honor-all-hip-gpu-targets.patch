@@ -1,0 +1,26 @@
+Honor explicit HIP GPU targets without filtering through an outdated allowlist.
+Let the HIP compiler validate architectures, including feature suffixes.
+https://github.com/icl-utk-edu/magma/issues/90
+
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -279,12 +279,14 @@
+         endif()
+ 
+         set( DEVCCFLAGS  "" )
+-        set(VALID_GFXS "700;701;702;703;704;705;801;802;803;805;810;900;902;904;906;908;909;90c;1010;1011;1012;1030;1031;1032;1033")
+-        foreach( GFX ${VALID_GFXS} )
+-            if ( GPU_TARGET MATCHES gfx${GFX} )
+-                set( DEVCCFLAGS ${DEVCCFLAGS} --offload-arch=gfx${GFX} )
+-            endif()
++        string(REGEX MATCHALL "gfx[0-9a-z]+(:[a-z]+[+-])*" GFX_TARGETS "${GPU_TARGET}")
++        if (NOT GFX_TARGETS)
++            message(FATAL_ERROR "GPU_TARGET must contain a HIP gfx architecture. Was: ${GPU_TARGET}")
++        endif()
++        list(REMOVE_DUPLICATES GFX_TARGETS)
++        foreach( GFX ${GFX_TARGETS} )
++            list(APPEND DEVCCFLAGS "--offload-arch=${GFX}")
+         endforeach()
+ 
+         set( DEVCCFLAGS ${DEVCCFLAGS} -fPIC ${FORTRAN_CONVENTION} )
+         set(MAGMA_HAVE_HIP "1")
